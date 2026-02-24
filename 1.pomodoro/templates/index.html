@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ポモドーロタイマー</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <main class="screen">
+      <section class="timer-card" aria-label="ポモドーロタイマー">
+        <header class="window-header">
+          <h1 class="title">ポモドーロタイマー</h1>
+          <div class="window-controls" aria-hidden="true">
+            <span>−</span>
+            <span>□</span>
+            <span>×</span>
+          </div>
+        </header>
+
+        <p id="session-label" class="session-label">作業中</p>
+
+        <div class="progress-wrapper" aria-label="タイマー進捗">
+          <svg class="progress-ring" viewBox="0 0 220 220" role="img" aria-label="進捗リング">
+            <circle class="ring-track" cx="110" cy="110" r="84"></circle>
+            <circle id="ring-value" class="ring-value" cx="110" cy="110" r="84"></circle>
+          </svg>
+          <p id="time-value" class="time-value">25:00</p>
+        </div>
+
+        <div class="actions">
+          <button id="primary-btn" class="btn btn-primary" type="button">開始</button>
+          <button id="reset-btn" class="btn btn-outline" type="button">リセット</button>
+          <button id="add-five-btn" class="btn btn-outline btn-small" type="button">+5分</button>
+        </div>
+
+        <section id="suggestion-panel" class="suggestion is-hidden" aria-live="polite">
+          <p class="suggestion-text">休憩しませんか？</p>
+          <div class="suggestion-actions">
+            <button id="accept-break-btn" class="btn btn-primary btn-compact" type="button">休憩する</button>
+            <button id="continue-focus-btn" class="btn btn-outline btn-compact" type="button">続ける</button>
+          </div>
+        </section>
+
+        <section class="summary" aria-label="今日の進捗">
+          <h2 class="summary-title">今日の進捗</h2>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <p id="completed-count" class="summary-value">0</p>
+              <p class="summary-label">完了</p>
+            </div>
+            <div class="summary-item">
+              <p id="focus-time" class="summary-value">0分</p>
+              <p class="summary-label">集中時間</p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='js/domain/stateMachine.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/domain/timerEngine.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/infra/clock.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/infra/storage.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/infra/notifier.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/infra/soundPlayer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/application/timerUseCase.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui/dom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
