@@ -7,6 +7,7 @@ let continueFocus;
 let extendRemainingTime;
 let startBreak;
 let advance;
+let checkAndResetDailyProgress;
 let STATES;
 let createSystemClock;
 let createMemoryStorage;
@@ -24,6 +25,7 @@ if (typeof module !== "undefined" && module.exports) {
     extendRemainingTime,
     startBreak,
     advance,
+    checkAndResetDailyProgress,
   } = require("../domain/timerEngine"));
   ({ createSystemClock } = require("../infra/clock"));
   ({ createMemoryStorage } = require("../infra/storage"));
@@ -41,6 +43,7 @@ if (typeof module !== "undefined" && module.exports) {
     extendRemainingTime,
     startBreak,
     advance,
+    checkAndResetDailyProgress,
   } = window.PomodoroTimerEngine);
   ({ createSystemClock } = window.PomodoroClock);
   ({ createMemoryStorage } = window.PomodoroStorage);
@@ -203,7 +206,8 @@ function loadInitialState(storage, stateKey, initialStateOptions) {
       return createInitialState(initialStateOptions);
     }
 
-    return { ...createInitialState(initialStateOptions), ...parsed };
+    const restoredState = { ...createInitialState(initialStateOptions), ...parsed };
+    return checkAndResetDailyProgress(restoredState);
   } catch {
     return createInitialState(initialStateOptions);
   }

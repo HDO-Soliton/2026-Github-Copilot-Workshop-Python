@@ -24,7 +24,13 @@ function createInitialState(options = {}) {
     nextBreakSuggestionAt: null,
     focusSecondsToday: 0,
     completedFocusCount: 0,
+    progressDate: getTodayDateString(),
   };
+}
+
+function getTodayDateString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 function getRemainingSeconds(state, nowMs) {
@@ -96,12 +102,30 @@ function resume(state, nowMs) {
 }
 
 function reset(state) {
-  return createInitialState({
-    focusDurationSec: state.focusDurationSec,
-    breakDurationSec: state.breakDurationSec,
-    suggestionIntervalSec: state.suggestionIntervalSec,
-    suggestionSnoozeSec: state.suggestionSnoozeSec,
-  });
+  return {
+    ...createInitialState({
+      focusDurationSec: state.focusDurationSec,
+      breakDurationSec: state.breakDurationSec,
+      suggestionIntervalSec: state.suggestionIntervalSec,
+      suggestionSnoozeSec: state.suggestionSnoozeSec,
+    }),
+    focusSecondsToday: state.focusSecondsToday,
+    completedFocusCount: state.completedFocusCount,
+    progressDate: state.progressDate,
+  };
+}
+
+function checkAndResetDailyProgress(state) {
+  const today = getTodayDateString();
+  if (state.progressDate !== today) {
+    return {
+      ...state,
+      focusSecondsToday: 0,
+      completedFocusCount: 0,
+      progressDate: today,
+    };
+  }
+  return state;
 }
 
 function continueFocus(state, nowMs) {
@@ -201,6 +225,7 @@ function advance(state, nowMs) {
         nextBreakSuggestionAt: null,
         focusSecondsToday: state.focusSecondsToday + state.focusDurationSec,
         completedFocusCount: state.completedFocusCount + 1,
+        progressDate: getTodayDateString(),
       },
       events,
     };
@@ -235,6 +260,7 @@ const api = {
   startBreak,
   shouldSuggestBreak,
   advance,
+  checkAndResetDailyProgress,
 };
 
 if (typeof module !== "undefined" && module.exports) {
