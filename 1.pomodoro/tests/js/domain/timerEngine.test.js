@@ -14,6 +14,7 @@ const {
   shouldSuggestBreak,
   advance,
   getRemainingSeconds,
+  checkAndResetDailyProgress,
 } = require("../../../static/js/domain/timerEngine");
 
 test("開始時に終了予定時刻と提案時刻を持つ", () => {
@@ -103,4 +104,52 @@ test("リセットで初期状態に戻る", () => {
   assert.equal(resetState.mode, STATES.IDLE);
   assert.equal(resetState.remainingSec, 1800);
   assert.equal(resetState.endAt, null);
+});
+
+test("リセット時に当日進捗が保持される", () => {
+  const now = 1_700_000_000_000;
+  const started = startFocus(createInitialState(), now);
+  const completed = advance(started, started.endAt);
+  
+  assert.equal(completed.state.focusSecondsToday, 25 * 60);
+  assert.equal(completed.state.completedFocusCount, 1);
+  
+  const resetState = reset(completed.state);
+  
+  assert.equal(resetState.mode, STATES.IDLE);
+  assert.equal(resetState.focusSecondsToday, 25 * 60);
+  assert.equal(resetState.completedFocusCount, 1);
+});
+
+test("日付が変わると進捗がリセットされる", () => {
+  const state = {
+    ...createInitialState(),
+    focusSecondsToday: 3600,
+    completedFocusCount: 3,
+    progressDate: "2026-02-23",
+  };
+  
+  const checkedState = checkAndResetDailyProgress(state);
+  
+  assert.equal(checkedState.focusSecondsToday, 0);
+  assert.equal(checkedState.completedFocusCount, 0);
+  assert.notEqual(checkedState.progressDate, "2026-02-23");
+});
+
+test("同じ日付なら進捗が保持される", () => {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  
+  const state = {
+    ...createInitialState(),
+    focusSecondsToday: 3600,
+    completedFocusCount: 3,
+    progressDate: todayStr,
+  };
+  
+  const checkedState = checkAndResetDailyProgress(state);
+  
+  assert.equal(checkedState.focusSecondsToday, 3600);
+  assert.equal(checkedState.completedFocusCount, 3);
+  assert.equal(checkedState.progressDate, todayStr);
 });
